@@ -9,6 +9,7 @@ School library management
 - [Screenshots](#screenshots)
 
 # TODO
+- [ ] Check .eslintrc .prettierrc duplication
 - [ ] Change electron boleirplate
 - [ ] Replace nedb with sqlite3
 - [ ] Upgrade react-bootstrap version
