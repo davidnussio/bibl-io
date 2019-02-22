@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ListGroup, Row, Col, Container } from 'react-bootstrap';
+import { ListGroup, Row, Col } from 'react-bootstrap';
 import SearchBar from './components/SearchBar';
 import BookList from './components/BookList';
 import FooterPaginator from '../../components/FooterPaginator';
@@ -18,14 +18,16 @@ export default function Library() {
   });
 
   useEffect(() => {
-    api.library.get(
-      state.activePage,
-      state.itemsPerPage,
-      (books, numRows) => setState(prevState => ({ ...prevState, books, numRows })),
-      Object.entries(state.queries)
-        .filter(([_, value]) => value)
-        .map(value => value[1])
-    );
+    api.library
+      .find(
+        state.activePage,
+        state.itemsPerPage,
+        Object.entries(state.queries)
+          .filter(([_, value]) => value)
+          .map(value => value[1])
+      )
+      .then(({ books, numRows }) => setState(prevState => ({ ...prevState, books, numRows })))
+      .catch(err => console.error('errore...', err));
   }, [state.activePage, state.itemsPerPage, state.queries]);
 
   const onChangePagination = activePage => setState(prevState => ({ ...prevState, activePage }));

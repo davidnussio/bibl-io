@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ListGroup, Row, Col, Container, Badge } from 'react-bootstrap';
+import { ListGroup, Row, Col, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaSignInAlt } from 'react-icons/fa';
 import Settore from './Settore';
