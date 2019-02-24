@@ -14,7 +14,10 @@ export default function Library() {
     filterType: { label: 'Tutti', value: 0 },
     filterSector: { label: 'Tutti i settori', value: 'Tutti i settori' },
     freeTextSearch: '',
-    queries: { filterTypeQuery: undefined, filterSectorQuery: undefined },
+    queries: {
+      column: { filterTypeQuery: undefined, filterSectorQuery: undefined },
+      fts: { freeTextSearchQuery: undefined },
+    },
   });
 
   useEffect(() => {
@@ -22,9 +25,10 @@ export default function Library() {
       .find(
         state.activePage,
         state.itemsPerPage,
-        Object.entries(state.queries)
+        Object.entries(state.queries.column)
           .filter(([_, value]) => value)
-          .map(value => value[1])
+          .map(value => value[1]),
+        state.queries.fts.freeTextSearchQuery
       )
       .then(({ books, numRows }) => setState(prevState => ({ ...prevState, books, numRows })))
       .catch(err => console.error('errore...', err));
@@ -43,7 +47,7 @@ export default function Library() {
       ...prevState,
       activePage: 1,
       filterType,
-      queries: { ...state.queries, filterTypeQuery },
+      queries: { ...state.queries, column: { ...state.queries.column, filterTypeQuery } },
     }));
   };
 
@@ -56,22 +60,19 @@ export default function Library() {
       ...prevState,
       activePage: 1,
       filterSector,
-      queries: { ...state.queries, filterSectorQuery },
+      queries: { ...state.queries, column: { ...state.queries.column, filterSectorQuery } },
     }));
   };
 
-  const onFreeTextSearch = value => {
-    const freeTextSearchQuery = value
-      ? `(${value
-          .split(' ')
-          .map(term => `titolo LIKE '%${term}%'`)
-          .join(' AND ')})`
-      : '';
+  const onFreeTextSearch = freeTextSearch => {
     setState(prevState => ({
       ...prevState,
       activePage: 1,
-      freeTextSearch: value,
-      queries: { ...state.queries, freeTextSearchQuery },
+      freeTextSearch,
+      queries: {
+        ...state.queries,
+        fts: { ...state.queries.fts, freeTextSearchQuery: freeTextSearch },
+      },
     }));
   };
 
