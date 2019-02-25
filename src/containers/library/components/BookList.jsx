@@ -10,7 +10,7 @@ export default function BookList({ books }) {
     <Fragment>
       {books.length ? (
         books.map(item => {
-          const listGroupItemProps = item.in_house ? {} : { className: 'lightgrayBackground' };
+          const listGroupItemProps = item.in_house ? {} : { className: 'light-gray-background' };
           return (
             <ListGroup.Item key={item.id} {...listGroupItemProps}>
               <Row>
@@ -23,7 +23,7 @@ export default function BookList({ books }) {
                   </span>
                 </Col>
                 <Col>
-                  <Link to={`/show/book/${item.id}`} className="tour-titolo-libro">
+                  <Link to={`/book/${item.id}`} className="tour-titolo-libro">
                     {item.titolo}
                   </Link>
                 </Col>

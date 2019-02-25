@@ -96,7 +96,7 @@ export default function Library() {
         onFreeTextSearch={onFreeTextSearch}
         freeTextSearch={freeTextSearch}
       />
-      <ListGroup.Item style={{ background: '#0288D1', color: '#ffffff' }}>
+      <ListGroup.Item className="title">
         <Row>
           <Col xs={2}>
             <h4>&nbsp;</h4>

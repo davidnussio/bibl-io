@@ -18,6 +18,20 @@ function countBooks(whereClause) {
   });
 }
 
+function get(id) {
+  return new Promise((resolve, reject) => {
+    db.get(`SELECT * FROM biblioteca WHERE id = ?`, id, cpsResolve(resolve, reject));
+  });
+}
+
+function save(book) {
+  if (book.id) {
+    console.warn('Need to be implemented, update data:', book);
+  } else {
+    console.warn('Need to be implemented, insert data:', book);
+  }
+}
+
 function find(activePage, itemPerPage, query = [], ftsValue = '') {
   return new Promise((resolve, reject) => {
     query.push('biblioteca.id = biblioteca_idx.rowid');
@@ -32,7 +46,6 @@ function find(activePage, itemPerPage, query = [], ftsValue = '') {
       );
     }
     const whereClause = query.length ? `WHERE ${query.join(' AND ')}` : '';
-    console.log('_DEBUG_QUERY_', whereClause);
     const limitClause = `LIMIT ${itemPerPage * (activePage - 1)},${itemPerPage}`;
     Promise.all([countBooks(whereClause), findBooks(whereClause, limitClause)])
       .then(([numRows, books]) => {
@@ -44,4 +57,4 @@ function find(activePage, itemPerPage, query = [], ftsValue = '') {
 
 function create() {}
 
-export default { find, create };
+export default { get, find, create, save };
