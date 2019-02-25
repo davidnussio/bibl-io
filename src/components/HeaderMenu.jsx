@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, Badge } from 'react-bootstrap';
+import { Navbar, Nav, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 // import { getLoanStats } from '../api';
@@ -14,16 +14,21 @@ export default function HeaderMenu({ location }) {
             Biblioteca
           </Nav.Link>
           <Nav.Link href="/loans" as={Link} to="/loans" disabled={location.pathname === '/loans'}>
-            <Badge className="alert-info">{100}</Badge>
-            Prestiti
-            <Badge className="alert-danger">{12}</Badge>
+            Prestiti{' '}
+            <Badge pill variant="info">
+              {100}
+            </Badge>
+            {' / '}
+            <Badge pill variant="danger">
+              {25}
+            </Badge>
           </Nav.Link>
           <Nav.Link href="/users" as={Link} to="/users" disabled={location.pathname === '/users'}>
             Utenti
           </Nav.Link>
         </Nav>
         <Nav className="justify-content-end" activeKey={location.pathname}>
-          <Nav.Link as={Link} to="/edit/book">
+          <Nav.Link as={Link} to="/book">
             Registra nuovo libro
           </Nav.Link>
         </Nav>
@@ -33,5 +38,5 @@ export default function HeaderMenu({ location }) {
 }
 
 HeaderMenu.propTypes = {
-  location: PropTypes.object,
+  location: PropTypes.shape({ pathname: PropTypes.string.isRequired }).isRequired,
 };
