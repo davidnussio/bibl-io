@@ -7,7 +7,7 @@ import { FaPen, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { Link, Prompt } from 'react-router-dom';
 import * as api from '../../api';
 
-function useForm({ data, schema, changedFieldClass = 'changed-field-value' }) {
+function useForm({ initialState, schema }) {
   const [pristine, setPristine] = useState(null);
   const [fields, setFields] = useState({});
 
@@ -27,34 +27,35 @@ function useForm({ data, schema, changedFieldClass = 'changed-field-value' }) {
           [name]: {
             ...prevFields[name],
             value: event.target.value,
-            className: value === event.target.value ? '' : changedFieldClass,
+            pristine: value === event.target.value,
           },
         }));
       },
       value: value || '',
-      className: '',
+      pristine: true,
     };
   }
 
   useEffect(() => {
-    console.warn('new data...');
     setFields(
-      Object.keys(schema.describe().fields).reduce(
+      Object.keys(initialState).reduce(
         (prev, name) => ({
           ...prev,
           [name]: {
             name,
-            ...initialize(name, data[name]),
+            ...initialize(name, initialState[name]),
           },
         }),
         {}
       )
     );
-  }, [data]);
+  }, [initialState]);
 
   useEffect(() => {
     // eslint-disable-next-line consistent-return
-    const changedFields = Object.keys(fields).filter(key => fields[key].value !== data[key]);
+    const changedFields = Object.keys(fields).filter(
+      key => fields[key].value !== initialState[key]
+    );
     if (changedFields.length) {
       setPristine(false);
     } else {
@@ -65,13 +66,35 @@ function useForm({ data, schema, changedFieldClass = 'changed-field-value' }) {
   return { fields, schema, pristine, getData };
 }
 
-export default function ShowBook({ history, match }) {
-  const [book, setBook] = useState({});
+function FieldInput({ type, pristine, ...otherProps }) {
+  const className = pristine ? '' : 'changed-field-value';
+  return <Form.Control type={type} className={className} {...otherProps} />;
+}
+
+export default function ShowBook({ match }) {
+  const [book, setBook] = useState({
+    titolo: '',
+    anno: '',
+    cognome: '',
+    collana: '',
+    difficolta: '',
+    editore: '',
+    genere: '',
+    id: undefined,
+    in_house: 1,
+    nome: '',
+    parole_chiave: '',
+    prezzo: '',
+    settore: '',
+  });
   const [editing, setEditing] = useState(false);
   const form = useForm({
-    data: book,
+    initialState: book,
     schema: object().shape({
-      titolo: string().required(),
+      titolo: string()
+        .min(2, 'Too Short!')
+        .max(50, 'Too Long!')
+        .required('Required'),
       anno: string().required(),
       cognome: string().required(),
       collana: string(),
@@ -87,7 +110,9 @@ export default function ShowBook({ history, match }) {
     }),
   });
 
-  console.log('form.fields', form.fields);
+  console.log('form.fields', form.pristine);
+
+  form.schema.validate(form.getData()).then(valid => console.log('→→→', valid));
 
   useEffect(() => {
     if (editing === false && form.pristine === false) {
@@ -164,7 +189,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Titolo</b>
           </Col>
-          <Col>{editing ? <Form.Control type="text" {...form.fields.titolo} /> : book.titolo}</Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.titolo} /> : book.titolo}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -176,10 +201,10 @@ export default function ShowBook({ history, match }) {
           {editing ? (
             <Fragment>
               <Col>
-                <Form.Control type="text" {...form.fields.nome} />
+                <FieldInput type="text" {...form.fields.nome} />
               </Col>
               <Col>
-                <Form.Control type="text" {...form.fields.cognome} />
+                <FieldInput type="text" {...form.fields.cognome} />
               </Col>
             </Fragment>
           ) : (
@@ -194,9 +219,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Collana</b>
           </Col>
-          <Col>
-            {editing ? <Form.Control type="text" {...form.fields.collana} /> : book.collana}
-          </Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.collana} /> : book.collana}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -204,9 +227,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Editore</b>
           </Col>
-          <Col>
-            {editing ? <Form.Control type="text" {...form.fields.editore} /> : book.editore}
-          </Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.editore} /> : book.editore}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -215,7 +236,7 @@ export default function ShowBook({ history, match }) {
             <b>Difficoltà</b>
           </Col>
           <Col>
-            {editing ? <Form.Control type="text" {...form.fields.difficolta} /> : book.difficolta}
+            {editing ? <FieldInput type="text" {...form.fields.difficolta} /> : book.difficolta}
           </Col>
         </Row>
       </ListGroup.Item>
@@ -224,7 +245,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Genere</b>
           </Col>
-          <Col>{editing ? <Form.Control type="text" {...form.fields.genere} /> : book.genere}</Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.genere} /> : book.genere}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -232,9 +253,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Settore</b>
           </Col>
-          <Col>
-            {editing ? <Form.Control type="text" {...form.fields.settore} /> : book.settore}
-          </Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.settore} /> : book.settore}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -244,7 +263,7 @@ export default function ShowBook({ history, match }) {
           </Col>
           <Col>
             {editing ? (
-              <Form.Control type="text" {...form.fields.parole_chiave} />
+              <FieldInput type="text" {...form.fields.parole_chiave} />
             ) : (
               book.parole_chiave
             )}
@@ -256,7 +275,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Anno</b>
           </Col>
-          <Col>{editing ? <Form.Control type="text" {...form.fields.anno} /> : book.anno}</Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.anno} /> : book.anno}</Col>
         </Row>
       </ListGroup.Item>
       <ListGroup.Item>
@@ -264,7 +283,7 @@ export default function ShowBook({ history, match }) {
           <Col sm={3} md={2}>
             <b>Prezzo</b>
           </Col>
-          <Col>{editing ? <Form.Control type="text" {...form.fields.prezzo} /> : book.prezzo}</Col>
+          <Col>{editing ? <FieldInput type="text" {...form.fields.prezzo} /> : book.prezzo}</Col>
         </Row>
       </ListGroup.Item>
     </ListGroup>
