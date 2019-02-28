@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { number, string, object } from 'yup';
 import { ListGroup, Row, Col, Button, Form } from 'react-bootstrap';
@@ -7,7 +7,7 @@ import { FaPen, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { Link, Prompt } from 'react-router-dom';
 import * as api from '../../api';
 
-function useForm({ initialState, schema }) {
+function useForm({ initialState }) {
   const [pristine, setPristine] = useState(null);
   const [fields, setFields] = useState({});
 
@@ -63,7 +63,7 @@ function useForm({ initialState, schema }) {
     }
   });
 
-  return { fields, schema, pristine, getData };
+  return { fields, pristine, getData };
 }
 
 function FieldInput({ type, pristine, ...otherProps }) {
@@ -71,7 +71,26 @@ function FieldInput({ type, pristine, ...otherProps }) {
   return <Form.Control type={type} className={className} {...otherProps} />;
 }
 
+function ErrorMessages({ fields, schema }) {
+  return (
+    Object.keys(fields).map(fieldName => {
+      const isValid = schema.validateAt(fieldName, fields);
+      console.log('?', isValid);
+      return (
+        <Row>
+          <Col sm={3} md={2}>
+            {fieldName}
+          </Col>
+          <Col>Message</Col>
+        </Row>
+      );
+    }) || []
+  );
+}
+
 export default function ShowBook({ match }) {
+  const yupOptions = { abortEarly: false };
+  const [editing, setEditing] = useState(null);
   const [book, setBook] = useState({
     titolo: '',
     anno: '',
@@ -87,39 +106,52 @@ export default function ShowBook({ match }) {
     prezzo: '',
     settore: '',
   });
-  const [editing, setEditing] = useState(false);
-  const form = useForm({
-    initialState: book,
-    schema: object().shape({
-      titolo: string()
-        .min(2, 'Too Short!')
-        .max(50, 'Too Long!')
-        .required('Required'),
-      anno: string().required(),
-      cognome: string().required(),
-      collana: string(),
-      difficolta: string(),
-      editore: string(),
-      genere: string(),
-      id: number(),
-      in_house: number().default(1),
-      nome: string(),
-      parole_chiave: string(),
-      prezzo: string(),
-      settore: string(),
-    }),
-  });
+  const form = useForm({ initialState: book });
+  const schema = useMemo(
+    () =>
+      object().shape({
+        titolo: string()
+          .min(2, 'minimo due caratteri')
+          .required('campo obbligatorio'),
+        anno: string(),
+        cognome: string().required(),
+        collana: string(),
+        difficolta: string(),
+        editore: string(),
+        genere: string(),
+        id: number(),
+        in_house: number(),
+        nome: string(),
+        parole_chiave: string(),
+        prezzo: string(),
+        settore: string(),
+      }),
+    []
+  );
 
-  console.log('form.fields', form.pristine);
+  if (editing) console.log(' → form.pristine:', form.pristine);
 
-  form.schema.validate(form.getData()).then(valid => console.log('→→→', valid));
+  if (editing)
+    schema
+      .validate(form.getData(), yupOptions)
+      .then(valid => console.log('→→→', valid))
+      .catch(e => console.log(e));
+
+  // console.log(form.fields);
+  if (editing && form.fields && form.fields.titolo) {
+    // console.log('T', form.fields.titolo, form.fields.titolo.value);
+    schema
+      .validateAt('titolo', form.fields)
+      .then(res => console.log('OK'))
+      .catch(res => console.log('catch titolo', res));
+  }
 
   useEffect(() => {
     if (editing === false && form.pristine === false) {
       const data = form.getData();
       console.log('form.getData', form.getData());
-      form.schema
-        .validate(data)
+      schema
+        .validate(data, yupOptions)
         .then(valid => {
           console.log('is form valid?', valid); // => true
           api.library.save(data);
@@ -129,7 +161,7 @@ export default function ShowBook({ match }) {
           api.library.save(data);
         });
     }
-  }, [editing]);
+  }, [editing, form.pristine]);
 
   useEffect(() => {
     if (match.params.id) {
@@ -176,6 +208,11 @@ export default function ShowBook({ match }) {
           </Col>
         </Row>
       </ListGroup.Item>
+      {editing && (
+        <ListGroup.Item>
+          <ErrorMessages fields={form.fields} schema={schema} />
+        </ListGroup.Item>
+      )}
       <ListGroup.Item>
         <Row>
           <Col sm={3} md={2}>

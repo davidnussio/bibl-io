@@ -9428,5 +9428,5 @@ a.text-dark:focus {
 
 .changed-field-value {
   border-color: #0288D1 !important;
-  background-color: #ffeeb9;
+  background-color: #ffeeb9 !important;
 }
