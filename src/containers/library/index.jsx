@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { ListGroup, Row, Col } from 'react-bootstrap';
+import { Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
 import SearchBar from './components/SearchBar';
 import BookList from './components/BookList';
 import FooterPaginator from '../../components/FooterPaginator';
 import * as api from '../../api';
+import MBookList from './components/MBookList';
 
 export default function Library() {
   const [state, setState] = useState({
@@ -96,6 +98,21 @@ export default function Library() {
         onFreeTextSearch={onFreeTextSearch}
         freeTextSearch={freeTextSearch}
       />
+      <Paper>
+        <Table>
+          <TableHead className="title">
+            <TableRow>
+              <TableCell />
+              <TableCell>Titolo</TableCell>
+              <TableCell>Autore</TableCell>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <MBookList books={books} />
+          </TableBody>
+        </Table>
+      </Paper>
       <ListGroup.Item className="title">
         <Row>
           <Col xs={2}>

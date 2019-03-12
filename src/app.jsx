@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { HashRouter as Router, Route, Switch } from 'react-router-dom';
-import { Jumbotron, Button } from 'react-bootstrap';
+// import 'roboto-fontface/css/roboto/roboto-fontface.css';
+import Button from '@material-ui/core/Button';
 import LibraryPage from './containers/library';
 import BookPage from './containers/book';
 // import UsersPage from './containers/users';
@@ -17,7 +18,7 @@ export default function Application() {
           {/* <Route path="/users" component={UsersPage} /> */}
           <Route
             component={({ location }) => (
-              <Jumbotron>
+              <div>
                 <h1>
                   <span role="img" aria-label="Faccina che piange">
                     😭
@@ -32,13 +33,14 @@ export default function Application() {
                 </p>
                 <p>
                   <Button
-                    variant="primary"
+                    variant="contained"
+                    color="primary"
                     onClick={() => window.open('https://github.com/davidnussio/bibl-io', '_blank')}
                   >
                     Learn more
                   </Button>
                 </p>
-              </Jumbotron>
+              </div>
             )}
           />
         </Switch>

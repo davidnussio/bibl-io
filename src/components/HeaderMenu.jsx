@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 export default function HeaderMenu({ location }) {
   const [lightTheme, setLightTheme] = useState(0);
   useEffect(() => {
-    document.getElementById('bootstrap-theme').href = `bootstrap-${lightTheme}.css`;
+    // document.getElementById('bootstrap-theme').href = `bootstrap-${lightTheme}.css`;
   }, [lightTheme]);
   return (
     <div style={{ zIndex: '100', position: 'sticky', top: '0' }}>
