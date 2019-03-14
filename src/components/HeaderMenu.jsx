@@ -1,18 +1,49 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, Badge, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { AppBar, Typography, Button, Toolbar, Tabs, Tab } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 
-// import { getLoanStats } from '../api';
+const styles = {
+  grow: {
+    flexGrow: 1,
+  },
+};
 
-export default function HeaderMenu({ location }) {
-  const [lightTheme, setLightTheme] = useState(0);
-  useEffect(() => {
-    // document.getElementById('bootstrap-theme').href = `bootstrap-${lightTheme}.css`;
-  }, [lightTheme]);
+function LinkTab(props) {
+  return <Tab component={Link} {...props} />;
+}
+
+const getUrlIndex = pathname => {
+  console.log(pathname);
+  switch (pathname.split('/')[1]) {
+    case '':
+    case 'book':
+      return 0;
+    case 'loans':
+      return 1;
+    case 'users':
+      return 2;
+    default:
+      return -1;
+  }
+};
+const HeaderMenu = ({ location, classes }) => {
   return (
-    <div style={{ zIndex: '100', position: 'sticky', top: '0' }}>
-      <Navbar bg="dark" variant="dark">
+    <div>
+      <AppBar position="sticky">
+        <Tabs
+          className={classes.tabs}
+          value={getUrlIndex(location.pathname)}
+          onChange={(event, to) => console.log(event, to)}
+        >
+          <LinkTab label="Biblioteca" to="/" />
+          <LinkTab label="Prestiti" to="/loans" />
+          <LinkTab label="Utenti" to="/users" />
+          <div className={classes.grow} />
+          <Button color="inherit">Registra nuovo libro</Button>
+        </Tabs>
+        {/* <Navbar bg="dark" variant="dark">
         <Nav className="mr-auto" activeKey={location.pathname}>
           <Nav.Link href="/" as={Link} to="/" disabled={location.pathname === '/'}>
             Biblioteca
@@ -27,23 +58,20 @@ export default function HeaderMenu({ location }) {
               {25}
             </Badge>
           </Nav.Link>
-          <Nav.Link href="/users" as={Link} to="/users" disabled={location.pathname === '/users'}>
-            Utenti
-          </Nav.Link>
-          <Nav.Item>
-            <Button onClick={() => setLightTheme((lightTheme + 1) % 7)}>Next theme</Button>
-          </Nav.Item>
         </Nav>
         <Nav className="justify-content-end" activeKey={location.pathname}>
           <Nav.Link as={Link} to="/book">
             Registra nuovo libro
           </Nav.Link>
         </Nav>
-      </Navbar>
+      </Navbar> */}
+      </AppBar>
     </div>
   );
-}
+};
 
 HeaderMenu.propTypes = {
   location: PropTypes.shape({ pathname: PropTypes.string.isRequired }).isRequired,
 };
+
+export default withStyles(styles)(HeaderMenu);

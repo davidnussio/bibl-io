@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ListGroup, Row, Col } from 'react-bootstrap';
-import { Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
+import {
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableFooter,
+  TablePagination,
+} from '@material-ui/core';
 import SearchBar from './components/SearchBar';
 import BookList from './components/BookList';
 import FooterPaginator from '../../components/FooterPaginator';
@@ -10,7 +19,7 @@ import MBookList from './components/MBookList';
 export default function Library() {
   const [state, setState] = useState({
     books: [],
-    activePage: 1,
+    activePage: 0,
     itemsPerPage: 10,
     numRows: 0,
     filterType: { label: 'Tutti', value: 0 },
@@ -25,7 +34,7 @@ export default function Library() {
   useEffect(() => {
     api.library
       .find(
-        state.activePage,
+        state.activePage + 1,
         state.itemsPerPage,
         Object.entries(state.queries.column)
           .filter(([_, value]) => value)
@@ -36,7 +45,8 @@ export default function Library() {
       .catch(err => console.error('errore...', err));
   }, [state.activePage, state.itemsPerPage, state.queries]);
 
-  const onChangePagination = activePage => setState(prevState => ({ ...prevState, activePage }));
+  const onChangePagination = (event, activePage) =>
+    setState(prevState => ({ ...prevState, activePage }));
 
   const onChangeFilterType = filterType => {
     const filtersQuery = {
@@ -47,7 +57,7 @@ export default function Library() {
     const filterTypeQuery = filtersQuery[filterType.value];
     setState(prevState => ({
       ...prevState,
-      activePage: 1,
+      activePage: 0,
       filterType,
       queries: { ...state.queries, column: { ...state.queries.column, filterTypeQuery } },
     }));
@@ -69,7 +79,7 @@ export default function Library() {
   const onFreeTextSearch = freeTextSearch => {
     setState(prevState => ({
       ...prevState,
-      activePage: 1,
+      activePage: 0,
       freeTextSearch,
       queries: {
         ...state.queries,
@@ -89,7 +99,7 @@ export default function Library() {
   } = state;
 
   return (
-    <ListGroup>
+    <Paper elevation={1}>
       <SearchBar
         onChangeFilterType={onChangeFilterType}
         filterType={filterType}
@@ -98,58 +108,32 @@ export default function Library() {
         onFreeTextSearch={onFreeTextSearch}
         freeTextSearch={freeTextSearch}
       />
-      <Paper>
-        <Table>
-          <TableHead className="title">
-            <TableRow>
-              <TableCell />
-              <TableCell>Titolo</TableCell>
-              <TableCell>Autore</TableCell>
-              <TableCell />
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <MBookList books={books} />
-          </TableBody>
-        </Table>
-      </Paper>
-      <ListGroup.Item className="title">
-        <Row>
-          <Col xs={2}>
-            <h4>&nbsp;</h4>
-          </Col>
-          <Col>
-            <h4>Titolo</h4>
-          </Col>
-          <Col>
-            <h4>Autore</h4>
-          </Col>
-          <Col xs={1}>
-            <h4>&nbsp;</h4>
-          </Col>
-        </Row>
-      </ListGroup.Item>
-      <BookList books={books} />
-      {books.length ? (
-        <ListGroup.Item>
-          <Row>
-            <Col className="text-right" md={10}>
-              <FooterPaginator
-                items={numRows}
-                itemsPerPage={itemsPerPage}
-                activePage={activePage}
-                onChange={onChangePagination}
-              />
-            </Col>
-
-            <Col md={2} className="text-right">
-              <i>Trovati {numRows} libri. </i>
-            </Col>
-          </Row>
-        </ListGroup.Item>
-      ) : (
-        undefined
-      )}
-    </ListGroup>
+      <Table>
+        <TableHead className="title">
+          <TableRow>
+            <TableCell />
+            <TableCell>Titolo</TableCell>
+            <TableCell>Autore</TableCell>
+            <TableCell />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <MBookList books={books} />
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              colSpan={4}
+              count={numRows}
+              rowsPerPage={itemsPerPage}
+              page={activePage}
+              onChangePage={onChangePagination}
+              onChangeRowsPerPage="this.handleChangeRowsPerPage"
+            />
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </Paper>
   );
 }

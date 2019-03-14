@@ -1,11 +1,19 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { FaShoppingCart, FaSignInAlt } from 'react-icons/fa';
+// import { FaShoppingCart, FaSignInAlt } from 'react-icons/fa';
 import { makeStyles } from '@material-ui/styles';
-import { TableCell, TableRow, Chip, Avatar, withStyles, Button } from '@material-ui/core';
+import {
+  TableCell,
+  TableRow,
+  Chip,
+  Avatar,
+  withStyles,
+  Button,
+  IconButton,
+} from '@material-ui/core';
 
-import { ShoppingCart } from '@material-ui/icons';
+import { ShoppingCart, Undo } from '@material-ui/icons';
 import Settore from './Settore';
 
 const styles = theme => ({
@@ -28,20 +36,18 @@ function BookList({ books }) {
           return (
             <TableRow key={item.id} {...listGroupItemProps}>
               <TableCell>
-                <Link to={item.in_house ? `/new/loan/${item.id}` : `/end/loan/${item.id}`}>
-                  <Chip
-                    icon={
-                      <Avatar>
-                        <ShoppingCart />
-                      </Avatar>
-                    }
-                    color="primary"
-                    label="Primary Clickable Chip"
-                    clickable
-                    variant="outlined"
-                  />
-                  {item.in_house ? <FaShoppingCart /> : <FaSignInAlt />}
-                </Link>
+                {/* <Link to={item.in_house ? `/new/loan/${item.id}` : `/end/loan/${item.id}`}> */}
+
+                {item.in_house ? (
+                  <IconButton>
+                    <ShoppingCart fontSize="small" />
+                  </IconButton>
+                ) : (
+                  <IconButton>
+                    <Undo />
+                  </IconButton>
+                )}
+                {/* </Link> */}
               </TableCell>
               <TableCell>
                 <Link to={`/book/${item.id}`} className="tour-titolo-libro">
